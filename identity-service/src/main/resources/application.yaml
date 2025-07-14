@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /identity
+
+spring:
+  datasource:
+    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/identity_service}
+    username: ${DBMS_USERNAME:root}
+    password: ${DBMS_PASSWORD:root}
+#    viết :root là viết thêm giá tri trị mặc định nếu không có biến môi trường nào được thiết lập
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+jwt:
+  signerKey: "xWNQHOpNLa92ocVX194dtIzOVk2HN7QNEi16Zt/BF/AE5UmraSBfmxQsLA4OfzqP"
+  valid-duration: 3600 # in second
+  refreshable-duration: 36000 # in seconds

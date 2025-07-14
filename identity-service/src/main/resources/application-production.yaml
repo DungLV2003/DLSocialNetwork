@@ -1,0 +1,4 @@
+jwt:
+#  signerKey: ${SIGNERKEY_EVR_PRO}
+  valid-duration: 7200 # in second
+  refreshable-duration: 72000 # in seconds
