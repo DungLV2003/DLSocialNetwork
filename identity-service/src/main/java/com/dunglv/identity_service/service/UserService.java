@@ -8,9 +8,11 @@ import com.dunglv.identity_service.entity.Role;
 import com.dunglv.identity_service.entity.User;
 import com.dunglv.identity_service.exception.AppException;
 import com.dunglv.identity_service.exception.ErrorCode;
+import com.dunglv.identity_service.mapper.IProfileMapper;
 import com.dunglv.identity_service.mapper.IUserMapper;
 import com.dunglv.identity_service.repository.Interface.IRoleRepository;
 import com.dunglv.identity_service.repository.Interface.IUserRepository;
+import com.dunglv.identity_service.repository.httpclient.IProfileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -34,7 +36,9 @@ public class UserService {
     IUserRepository userRepository;
     IUserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    IProfileMapper profileMapper;
     IRoleRepository roleRepository;
+    IProfileClient  profileClient;
     public UserResponse createUser(UserCreationRequest request) {
         //k cần nữa vì trong enity đã để unique cho username còn bắt trùng thì ở bên dưới có bắt
     //        if (userRepository.existsByUsername(request.getUsername()))
@@ -54,6 +58,14 @@ public class UserService {
         }catch (DataIntegrityViolationException e) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+
+
+
+        var profileCreationRequest = profileMapper.toProfileCreationRequest(request);
+
+        profileCreationRequest.setUserId(user.getId());
+
+        profileClient.createProfile(profileCreationRequest);
 
         return userMapper.toUserResponse(user);
     }
