@@ -1,9 +1,9 @@
 package com.dunglv.notification.service;
 
 import com.dunglv.notification.dto.request.EmailRequest;
-import com.dunglv.notification.dto.request.To;
+import com.dunglv.notification.dto.request.Recipient;
 import com.dunglv.notification.dto.request.SendEmailRequest;
-import com.dunglv.notification.dto.request.From;
+import com.dunglv.notification.dto.request.Sender;
 import com.dunglv.notification.dto.response.EmailResponse;
 import com.dunglv.notification.exception.AppException;
 import com.dunglv.notification.exception.ErrorCode;
@@ -26,18 +26,17 @@ public class EmailService {
 
     public EmailResponse sendEmail(SendEmailRequest request) {
         EmailRequest emailRequest = EmailRequest.builder()
-                .from(From.builder()
-                        .email("dunglvhe172249@fpt.edu.vn") // Email quản trị viên
+                .sender(Sender.builder()
+                        .name("DungLe")
+                        .email("fenxes20@gmail.com")
                         .build())
-                .to(List.of(To.builder()
-                        .email("dunglvhe172249@fpt.edu.vn") // Email quản trị viên
-                        .build()))
+                .to(List.of(request.getTo()))
                 .subject(request.getSubject())
-                .html(request.getHtml())
+                .htmlContent(request.getHtmlContent())
                 .build();
         try {
-            return emailClient.sendEmail("Bearer " + apiKey, emailRequest);
-        } catch (FeignException e) {
+            return emailClient.sendEmail(apiKey, emailRequest);
+        } catch (FeignException e){
             throw new AppException(ErrorCode.CANNOT_SEND_EMAIL);
         }
     }

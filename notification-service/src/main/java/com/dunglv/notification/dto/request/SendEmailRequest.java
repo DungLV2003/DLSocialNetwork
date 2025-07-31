@@ -12,7 +12,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class SendEmailRequest {
-    To to;
+    Recipient to;
     String subject;
-    String html;
+    String htmlContent;
 }
+
