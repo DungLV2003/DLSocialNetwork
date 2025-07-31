@@ -11,7 +11,6 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class Recipient {
-    String name;
+public class To {
     String email;
 }

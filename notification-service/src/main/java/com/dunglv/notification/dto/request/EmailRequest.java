@@ -14,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class EmailRequest {
-    Sender from;
-    List<Recipient> to;
+    From from;
+    List<To> to;
     String subject;
     String html;
 }
