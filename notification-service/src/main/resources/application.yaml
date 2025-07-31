@@ -19,5 +19,12 @@ spring:
         spring.json.trusted.packages: "*"
 notification:
   email:
-    brevo-url: https://api.brevo.com
-    brevo-apikey: <key>
+    mailersend-url: https://api.mailersend.com
+    mailersend-apikey: <key>
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 500000  # 5 giây (tăng lên nếu cần, đơn vị: mili giây)
+        readTimeout: 500000     # 5 giây (tăng lên nếu cần, đơn vị: mili giây)
