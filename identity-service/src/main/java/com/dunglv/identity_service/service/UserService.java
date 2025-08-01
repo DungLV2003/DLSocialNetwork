@@ -1,5 +1,6 @@
 package com.dunglv.identity_service.service;
 
+import com.dunglv.event.dto.NotificationEvent;
 import com.dunglv.identity_service.constant.PredefinedRole;
 import com.dunglv.identity_service.dto.request.UserCreationRequest;
 import com.dunglv.identity_service.dto.request.UserUpdateRequest;
@@ -40,7 +41,7 @@ public class UserService {
     IRoleRepository roleRepository;
     IProfileClient  profileClient;
 
-    KafkaTemplate<String, String> kafkaTemplate;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     public UserResponse createUser(UserCreationRequest request) {
         //k cần nữa vì trong enity đã để unique cho username còn bắt trùng thì ở bên dưới có bắt
@@ -70,8 +71,15 @@ public class UserService {
 
         profileClient.createProfile(profileCreationRequest);
 
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .chanel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to DLSocialNetwork")
+                .body("Welcome " + user.getUsername() + ", your account has been created successfully!")
+                .build();
+
         //Publish message to Kafka
-        kafkaTemplate.send("onboard-successful","Welcome our new member " +  user.getUsername());
+        kafkaTemplate.send("notification-delivery",notificationEvent);
 
         return userMapper.toUserResponse(user);
     }
