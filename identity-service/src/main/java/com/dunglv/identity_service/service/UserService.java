@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,6 +39,9 @@ public class UserService {
     IProfileMapper profileMapper;
     IRoleRepository roleRepository;
     IProfileClient  profileClient;
+
+    KafkaTemplate<String, String> kafkaTemplate;
+
     public UserResponse createUser(UserCreationRequest request) {
         //k cần nữa vì trong enity đã để unique cho username còn bắt trùng thì ở bên dưới có bắt
     //        if (userRepository.existsByUsername(request.getUsername()))
@@ -65,6 +69,9 @@ public class UserService {
         profileCreationRequest.setUserId(user.getId());
 
         profileClient.createProfile(profileCreationRequest);
+
+        //Publish message to Kafka
+        kafkaTemplate.send("onboard-successful","Welcome our new member " +  user.getUsername());
 
         return userMapper.toUserResponse(user);
     }
