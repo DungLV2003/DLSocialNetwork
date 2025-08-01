@@ -13,7 +13,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+#      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 jwt:
   signerKey: "xWNQHOpNLa92ocVX194dtIzOVk2HN7QNEi16Zt/BF/AE5UmraSBfmxQsLA4OfzqP"
