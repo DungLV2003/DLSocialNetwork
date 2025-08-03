@@ -22,7 +22,8 @@ import org.springframework.web.filter.CorsFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
-            "/internal/users"
+            "/internal/users",
+            "/internal/users/**"
     };
 
     @Autowired
@@ -32,7 +33,7 @@ public class SecurityConfig {
 
         // Configure HTTP security
         httpSecurity
-                .authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+                .authorizeHttpRequests(request -> request.requestMatchers( PUBLIC_ENDPOINTS)
                 .permitAll()
                 .anyRequest()
                 .authenticated());
