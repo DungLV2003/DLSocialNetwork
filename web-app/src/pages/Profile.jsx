@@ -291,7 +291,7 @@ export default function Profile() {
                 mb: "20px",
               }}
             >
-              Welcome back to Devteria, {userDetails.username} !
+              Welcome back to DLSocialNetwork, {userDetails.username} !
             </Typography>
             <Box
               sx={{

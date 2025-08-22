@@ -56,6 +56,7 @@ public class UserService {
         // Set mac dinh role cho 1 user moi duoc them vao he thong
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         user.setRoles(roles);
+        user.setEmailVerified(false);
 
         try {
             user = userRepository.save(user);
@@ -65,11 +66,10 @@ public class UserService {
 
 
 
-        var profileCreationRequest = profileMapper.toProfileCreationRequest(request);
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+        profileRequest.setUserId(user.getId());
 
-        profileCreationRequest.setUserId(user.getId());
-
-        profileClient.createProfile(profileCreationRequest);
+        var profile = profileClient.createProfile(profileRequest);
 
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .chanel("EMAIL")
@@ -81,7 +81,10 @@ public class UserService {
         //Publish message to Kafka
         kafkaTemplate.send("notification-delivery",notificationEvent);
 
-        return userMapper.toUserResponse(user);
+        var userCreationReponse = userMapper.toUserResponse(user);
+        userCreationReponse.setId(profile.getResult().getId());
+
+        return userCreationReponse;
     }
 
     //PostAuthorize is used after the method execution to check if the user has access to the returned object
