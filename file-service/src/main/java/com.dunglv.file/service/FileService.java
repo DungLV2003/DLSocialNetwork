@@ -1,5 +1,14 @@
 package com.dunglv.file.service;
 
+import com.dunglv.file.dto.response.FileResponse;
+import com.dunglv.file.entity.FileManagement;
+import com.dunglv.file.mapper.FileMgmtMapper;
+import com.dunglv.file.repository.FileManagementRepository;
+import com.dunglv.file.repository.FileRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,20 +22,27 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class FileService {
-    public Object uploadFile(MultipartFile file) throws IOException {
-        Path folder = Paths.get("D:\\Material FPT\\MyPersonalProject\\Image");
-        String fileExtension = StringUtils
-                .getFilenameExtension(file.getOriginalFilename());
+    FileRepository  fileRepository;
+    FileManagementRepository fileManagementRepository;
+    FileMgmtMapper fileMgmtMapper;
 
-        String fileName = Objects.isNull(fileExtension)
-                ? UUID.randomUUID().toString()
-                : UUID.randomUUID() + "." + fileExtension;
+    public FileResponse uploadFile(MultipartFile file) throws IOException {
+        //Store file in local storage
+        var fileInfo = fileRepository.store(file);
+        // Create file management info
+        var fileMgmt = fileMgmtMapper.toFileMgmt(fileInfo);
 
-        Path filePath = folder.resolve(fileName).normalize().toAbsolutePath();
-
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-        return null;
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        fileMgmt.setOwnerId(userId);
+        fileMgmt = fileManagementRepository.save(fileMgmt);
+        return  FileResponse.builder()
+                .originalFileName(file.getOriginalFilename())
+                .url(fileInfo.getUrl())
+                .build();
     }
 }
