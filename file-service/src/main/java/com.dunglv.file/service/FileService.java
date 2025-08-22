@@ -1,13 +1,18 @@
 package com.dunglv.file.service;
 
+import com.dunglv.file.dto.response.FileData;
 import com.dunglv.file.dto.response.FileResponse;
 import com.dunglv.file.entity.FileManagement;
+import com.dunglv.file.exception.AppException;
+import com.dunglv.file.exception.ErrorCode;
 import com.dunglv.file.mapper.FileMgmtMapper;
 import com.dunglv.file.repository.FileManagementRepository;
 import com.dunglv.file.repository.FileRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -44,5 +49,13 @@ public class FileService {
                 .originalFileName(file.getOriginalFilename())
                 .url(fileInfo.getUrl())
                 .build();
+    }
+
+    public FileData dowloadFile(String fileName) throws IOException {
+       var fileMgmt = fileManagementRepository.findById(fileName)
+                .orElseThrow(() -> new AppException(ErrorCode.FILE_NOT_FOUND));
+
+       var resource = fileRepository.read(fileMgmt);
+       return new FileData(fileMgmt.getContentType(), resource);
     }
 }
