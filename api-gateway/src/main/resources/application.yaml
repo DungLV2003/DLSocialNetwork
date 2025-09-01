@@ -9,6 +9,12 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      httpclient:
+        multipart:
+          enabled: true
+      multipart:
+          max-parts: 100
+          max-parts-per-file: 10
       routes:
         - id: identity_service
           uri: http://localhost:8080

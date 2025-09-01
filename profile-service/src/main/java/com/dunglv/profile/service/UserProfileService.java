@@ -1,20 +1,25 @@
 package com.dunglv.profile.service;
 
+import com.dunglv.profile.dto.request.UpdateProfileRequest;
+import com.dunglv.profile.exception.AppException;
+import com.dunglv.profile.exception.ErrorCode;
+import com.dunglv.profile.repository.httpclient.FileClient;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import com.dunglv.profile.dto.request.ProfileCreationRequest;
 import com.dunglv.profile.dto.response.UserProfileResponse;
 import com.dunglv.profile.entity.UserProfile;
-import com.dunglv.profile.exception.AppException;
-import com.dunglv.profile.exception.ErrorCode;
 import com.dunglv.profile.mapper.IUserProfileMapper;
 import com.dunglv.profile.repository.IUserProfileRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.util.List;
 
@@ -25,6 +30,9 @@ import java.util.List;
 public class UserProfileService {
     IUserProfileRepository userProfileRepository;
     IUserProfileMapper  userProfileMapper;
+
+    FileClient fileClient;
+
 
     public UserProfileResponse createProfile(ProfileCreationRequest request) {
         UserProfile userProfile = userProfileMapper.toUserProfile(request);
@@ -60,5 +68,32 @@ public class UserProfileService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userProfileMapper.toUserProfileResponse(profile);
+    }
+
+    public UserProfileResponse updateMyProfile(UpdateProfileRequest request) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        var profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        userProfileMapper.update(profile, request);
+
+        return userProfileMapper.toUserProfileResponse(userProfileRepository.save(profile));
+    }
+
+
+    public UserProfileResponse updateAvatar(MultipartFile file) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        var profile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        var response = fileClient.uploadMedia(file);
+
+        profile.setAvatar(response.getResult().getUrl());
+
+        return userProfileMapper.toUserProfileResponse(userProfileRepository.save(profile));
     }
 }
