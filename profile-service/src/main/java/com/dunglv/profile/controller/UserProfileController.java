@@ -1,6 +1,7 @@
 package com.dunglv.profile.controller;
 
 import com.dunglv.profile.dto.request.ProfileCreationRequest;
+import com.dunglv.profile.dto.request.SearchUserRequest;
 import com.dunglv.profile.dto.request.UpdateProfileRequest;
 import com.dunglv.profile.dto.response.ApiResponse;
 import com.dunglv.profile.dto.response.UserProfileResponse;
@@ -53,5 +54,13 @@ public class UserProfileController {
                 .result(userProfileService.updateAvatar(file))
                 .build();
     }
+
+    @PostMapping("/users/search")
+    ApiResponse<List<UserProfileResponse>> search(@RequestBody SearchUserRequest request) {
+        return ApiResponse.<List<UserProfileResponse>>builder()
+                .result(userProfileService.search(request))
+                .build();
+    }
+
 
 }
