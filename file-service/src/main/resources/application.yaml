@@ -14,5 +14,5 @@ spring:
       max-request-size: 5MB
 app:
   file:
-    storage-dir: D:\Material FPT\MyPersonalProject\Image
+    storage-dir: D:\Material FPT\MyPersonalProject\Image\UploadFile
     download-prefix: http://localhost:8888/api/v1/file/media/download/
