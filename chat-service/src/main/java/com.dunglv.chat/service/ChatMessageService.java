@@ -1,5 +1,6 @@
 package com.dunglv.chat.service;
 
+import com.corundumstudio.socketio.SocketIOServer;
 import com.dunglv.chat.dto.request.ChatMessageRequest;
 import com.dunglv.chat.dto.response.ChatMessageResponse;
 import com.dunglv.chat.entity.ChatMessage;
@@ -29,6 +30,7 @@ public class ChatMessageService {
     ChatMessageRepository chatMessageRepository;
     ConversationRepository conversationRepository;
     ProfileClient profileClient;
+    SocketIOServer socketIOServer;
 
     ChatMessageMapper chatMessageMapper;
 
@@ -80,6 +82,13 @@ public class ChatMessageService {
 
         // Create chat message
         chatMessage = chatMessageRepository.save(chatMessage);
+
+        String message = chatMessage.getMessage();
+
+        // Publish socket event to clients
+        socketIOServer.getAllClients().forEach(client -> {
+           client.sendEvent("message",message);
+        });
 
         // convert to Response
         return toChatMessageResponse(chatMessage);
