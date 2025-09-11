@@ -5,6 +5,8 @@ import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.annotation.OnConnect;
 import com.corundumstudio.socketio.annotation.OnDisconnect;
 import com.corundumstudio.socketio.annotation.OnEvent;
+import com.dunglv.chat.dto.request.IntrospectRequest;
+import com.dunglv.chat.service.IdentityService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +20,26 @@ import org.springframework.stereotype.Component;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class SocketHandler {
     SocketIOServer server;
-
+    IdentityService identityService;
     @OnConnect
     public void onConnect(SocketIOClient client) {
-        log.info("Client connected: {}", client.getSessionId());
+        // Get token from request parameters
+        String token = client.getHandshakeData().getSingleUrlParam("token");
+
+        // verify token (this is a placeholder, implement your own logic)
+        var introspectResponse = identityService.introspect(
+               IntrospectRequest.builder()
+                        .token(token)
+                        .build()
+        );
+
+        // If token is invalid, disconnect the client
+        if (introspectResponse.isValid()) {
+            log.info("Client connected: {}", client.getSessionId());
+        } else {
+            log.error("Authentication fail: {}", client.getSessionId());
+            client.disconnect();
+        }
     }
 
     @OnDisconnect
